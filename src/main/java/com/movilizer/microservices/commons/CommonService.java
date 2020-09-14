@@ -94,7 +94,7 @@ public class CommonService {
         }
     }
 
-    private <T> List<T> convertJSONArrayToList(JSONArray jsonArray, Class<T> tClass) {
+    public  <T> List<T> convertJSONArrayToList(JSONArray jsonArray, Class<T> tClass) {
         List<T> list = new ArrayList<>();
         Gson g = new Gson();
         for (int i = 0; i < jsonArray.length(); i++) {

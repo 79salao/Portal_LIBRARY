@@ -82,6 +82,56 @@ public class CommonService {
         }
     }
 
+    /***
+     *
+     * @param url Service url to call.
+     * @param method Http method to use.
+     * @param payload Object to send.
+     * @param token Authorization token.
+     */
+    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload, String token) {
+        try {
+            java.net.URL urlObject = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
+            con.setRequestMethod(method);
+            con.setRequestProperty("Content-Type", "application/json; utf-8");
+            con.setRequestProperty("Accept", "application/json");
+            con.setRequestProperty("Authorization", token);
+            con.setDoOutput(true);
+            con.setDoInput(true);
+            ObjectMapper mapper = new ObjectMapper();
+            String json = null;
+            try {
+                json = mapper.writeValueAsString(payload);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            try (OutputStream os = con.getOutputStream()) {
+                byte[] input = new byte[0];
+                if (json != null) {
+                    input = json.getBytes(StandardCharsets.UTF_8);
+                }
+                os.write(input, 0, input.length);
+            }
+            con.connect();
+            Map<String, Object> map;
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+                StringBuilder response = new StringBuilder();
+                String responseLine = null;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                JSONObject jsonObject = new JSONObject(response);
+                map = jsonObject.toMap();
+            }
+            return map;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new HashMap<>();
+        }
+    }
+
 
     public JSONArray getJSONArrayFromURL(String url) {
         try {

@@ -2,14 +2,20 @@ package com.movilizer.microservices.commons.models;
 
 public class Log {
 
+    public static final String INFO = "INFO";
+    public static final String WARNING = "WARNING";
+    public static final String DEBUG = "DEBUG";
+    public static final String ERROR = "ERROR";
+    public static final String CRITICAL = "CRITICAL";
+
     int id;
     String calendar;
     String component;
-    int severity;
+    String severity;
     String message;
     String username;
 
-    public Log(String calendar, String component, int severity, String message, String username) {
+    public Log(String calendar, String component, String severity, String message, String username) {
         this.calendar = calendar;
         this.component = component;
         this.severity = severity;
@@ -17,7 +23,7 @@ public class Log {
         this.username = username;
     }
 
-    public static Log constructLog(String calendar, String component, int severity, String message, String username) {
+    public static Log constructLog(String calendar, String component, String severity, String message, String username) {
         return new Log(calendar, component, severity, message, username);
     }
 
@@ -45,11 +51,11 @@ public class Log {
         this.component = component;
     }
 
-    public int getSeverity() {
+    public String getSeverity() {
         return severity;
     }
 
-    public void setSeverity(int severity) {
+    public void setSeverity(String severity) {
         this.severity = severity;
     }
 
@@ -69,3 +75,4 @@ public class Log {
         this.username = username;
     }
 }
+

@@ -19,7 +19,10 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /***
  * This library contains the common methods used in the architecture.
@@ -27,13 +30,6 @@ import java.util.*;
  *
  */
 public class CommonService {
-
-    private static final String ES_URL_INFO = "";
-    private static final String ES_URL_WARNING = "";
-    private static final String ES_URL_ERROR = "";
-    public final String POST = "POST";
-    public final String PUT = "PUT";
-
     /***
      *
      * @param url Service url to call.
@@ -162,22 +158,6 @@ public class CommonService {
         } catch (IOException e) {
             e.printStackTrace();
             return new JSONObject();
-        }
-    }
-
-    public void log(String type, String message) {
-        Map<String, String> payload = Collections.singletonMap("log", message);
-        String token = "";
-        switch (type) {
-            case "INFO":
-                this.sendObjectAsJson(ES_URL_INFO, this.POST, payload, token);
-                break;
-            case "WARNING":
-                this.sendObjectAsJson(ES_URL_WARNING, this.POST, payload, token);
-                break;
-            case "ERROR":
-                this.sendObjectAsJson(ES_URL_ERROR, this.POST, payload, token);
-                break;
         }
     }
 

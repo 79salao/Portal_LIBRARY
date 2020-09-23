@@ -29,11 +29,7 @@ import java.util.*;
  */
 public class CommonService {
 
-    public static final String OK = "OK";
-    public static final String INFO = "INFO";
-    public static final String WARNING = "Warning";
-    public static final String ERROR = "Error";
-    public static final String CRITICAL = "CRITICAL";
+    public static final String CRITICAL_ERROR_MESSAGE = "CRITICAL ERROR. Communication with Monitoring failed 3 times.";
 
     private int counter;
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.movilizer.microservices.commons.models.Employee;
 import com.movilizer.microservices.commons.models.ExtraField;
+import com.movilizer.microservices.commons.models.Log;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.json.JSONArray;
@@ -19,10 +20,7 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /***
  * This library contains the common methods used in the architecture.
@@ -30,6 +28,40 @@ import java.util.Map;
  *
  */
 public class CommonService {
+
+    public static final String OK = "OK";
+    public static final String INFO = "INFO";
+    public static final String WARNING = "Warning";
+    public static final String ERROR = "Error";
+    public static final String CRITICAL = "CRITICAL";
+
+    private int counter;
+
+    /***
+     *
+     * Method to send logs to the Monitoring microservice.
+     *
+     * @param severity Severity of the log. It can be OK, INFO, WARNING, ERROR or CRITICAL.
+     * @param message Message to be logged.
+     * @param username Username using the service.
+     * @param service Service that owns the log.
+     * @param url Url to the Monitoring microservice.
+     *
+     */
+    public void log(String severity, String message, String username, String service, String url) {
+        Log log = new Log(this.getDate(), service, severity, message, username);
+        try {
+            this.sendObjectAsJson(url, "POST", log);
+        } catch (IOException e) {
+            if (this.counter < 3) {
+                this.log(severity, message, username, service, url);
+                this.counter += 1;
+            }
+            this.counter = 0;
+            e.printStackTrace();
+        }
+    }
+
     /***
      *
      * Method to send objects as JSON between microservices with token.
@@ -249,5 +281,15 @@ public class CommonService {
         });
         return definitiveMap;
     }
+
+    private String getDate() {
+        return Calendar.getInstance().get(Calendar.YEAR) + "/" +
+                Calendar.getInstance().get(Calendar.MONTH) + "/" +
+                Calendar.getInstance().get(Calendar.DAY_OF_MONTH) + " - " +
+                Calendar.getInstance().get(Calendar.HOUR) + ":" +
+                Calendar.getInstance().get(Calendar.MINUTE) + ":" +
+                Calendar.getInstance().get(Calendar.SECOND);
+    }
+
 
 }

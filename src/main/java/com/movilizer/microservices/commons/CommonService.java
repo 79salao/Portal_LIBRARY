@@ -32,9 +32,15 @@ import java.util.Map;
 public class CommonService {
     /***
      *
+     * Method to send objects as JSON between microservices with token.
+     *
      * @param url Service url to call.
      * @param method Http method to use.
      * @param payload Object to send.
+     *
+     * @throws IOException
+     *
+     * @return response JSON as Map<String, Object>
      */
     public Map<String, Object> sendObjectAsJson(String url, String method, Object payload) throws IOException {
         java.net.URL urlObject = new URL(url);
@@ -75,10 +81,14 @@ public class CommonService {
 
     /***
      *
+     * Method to send objects as JSON between microservices with token.
+     *
      * @param url Service url to call.
      * @param method Http method to use.
      * @param payload Object to send.
      * @param token Authorization token.
+     *
+     * @return response JSON as Map<String, Object>
      */
     public Map<String, Object> sendObjectAsJson(String url, String method, Object payload, String token) throws IOException {
         java.net.URL urlObject = new URL(url);
@@ -115,10 +125,17 @@ public class CommonService {
                 JSONObject jsonObject = new JSONObject(response);
                 map = jsonObject.toMap();
             }
-            return map;
+        return map;
     }
 
-
+    /***
+     *
+     * Gets the response from another microservice as a JSONArray.
+     *
+     * @param url
+     * @return returns the response as JSONArray
+     * @throws IOException
+     */
     public JSONArray getJSONArrayFromURL(String url) throws IOException {
         java.net.URL urlObject = new URL(url);
         HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
@@ -130,6 +147,14 @@ public class CommonService {
         return new JSONArray(jsonTokener);
     }
 
+    /***
+     *
+     * Gets the response from another microservice as a JSONObject.
+     *
+     * @param url url of the microservice endpoint.
+     * @return returns the response as JSONObject.
+     * @throws IOException
+     */
     public JSONObject getJSONObjectFromURL(String url) throws IOException {
         java.net.URL urlObject = new URL(url);
         HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
@@ -141,6 +166,15 @@ public class CommonService {
         return new JSONObject(jsonTokener);
     }
 
+    /***
+     *
+     * Takes a JSONArray and transformes it to a list of a specified object class.
+     *
+     * @param jsonArray JSONArray object to transform.
+     * @param tClass Class object to which the JSONArray will be transformed.
+     * @return returns a list of the specified object class.
+     * @throws IOException
+     */
     public <T> List<T> convertJSONArrayToList(JSONArray jsonArray, Class<T> tClass) throws IOException {
         List<T> list = new ArrayList<>();
         Gson g = new Gson();
@@ -154,6 +188,14 @@ public class CommonService {
         return list;
     }
 
+    /***
+     *
+     * Takes a list and returns a list of employees, including the extra fields.
+     *
+     * @param list list of objects to transform.
+     * @return returns the list transformed to an employee list.
+     * @throws IOException
+     */
     private <T> List<T> returnEmployeeList(List<T> list) throws IOException {
         PropertiesConfiguration config = new PropertiesConfiguration();
         try {
@@ -171,6 +213,14 @@ public class CommonService {
         return (List<T>) definitiveEmployeeList;
     }
 
+    /***
+     *
+     * Takes a list of employees and assigns the list of extrafields to each employee.
+     *
+     * @param employeeList employee list to which add the extrafields to each employee.
+     * @param extraFieldsMap map of extrafield to add to each employee.
+     * @return returns the complete employee list.
+     */
     private List<Employee> addExtraFieldsToEmployeeList(List<Employee> employeeList, Map<Long, List<ExtraField>> extraFieldsMap) {
         List<Employee> definitiveList = new ArrayList<>();
         employeeList.forEach(employee -> {
@@ -179,6 +229,13 @@ public class CommonService {
         return definitiveList;
     }
 
+    /***
+     *
+     * Takes a generic map and converts it to an ExtraField map.
+     *
+     * @param parameterMap map to convert to extraFields map
+     * @return returns the ExtraField map.
+     */
     private Map<Long, List<ExtraField>> convertGenericMapToExtraFieldsMap(Map<String, Object> parameterMap) {
         Map<Long, List<ExtraField>> definitiveMap = new HashMap<>();
         Gson g = new Gson();

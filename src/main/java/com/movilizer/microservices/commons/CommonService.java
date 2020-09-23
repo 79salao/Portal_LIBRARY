@@ -36,18 +36,17 @@ public class CommonService {
      * @param method Http method to use.
      * @param payload Object to send.
      */
-    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload) {
+    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload) throws IOException {
+        java.net.URL urlObject = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
+        con.setRequestMethod(method);
+        con.setRequestProperty("Content-Type", "application/json; utf-8");
+        con.setRequestProperty("Accept", "application/json");
+        con.setDoOutput(true);
+        con.setDoInput(true);
+        ObjectMapper mapper = new ObjectMapper();
+        String json = null;
         try {
-            java.net.URL urlObject = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
-            con.setRequestMethod(method);
-            con.setRequestProperty("Content-Type", "application/json; utf-8");
-            con.setRequestProperty("Accept", "application/json");
-            con.setDoOutput(true);
-            con.setDoInput(true);
-            ObjectMapper mapper = new ObjectMapper();
-            String json = null;
-            try {
                 json = mapper.writeValueAsString(payload);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
@@ -72,10 +71,6 @@ public class CommonService {
                 map = jsonObject.toMap();
             }
             return map;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new HashMap<>();
-        }
     }
 
     /***
@@ -85,18 +80,17 @@ public class CommonService {
      * @param payload Object to send.
      * @param token Authorization token.
      */
-    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload, String token) {
-        try {
-            java.net.URL urlObject = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
-            con.setRequestMethod(method);
-            con.setRequestProperty("Content-Type", "application/json; utf-8");
-            con.setRequestProperty("Accept", "application/json");
-            con.setRequestProperty("Authorization", token);
-            con.setDoOutput(true);
-            con.setDoInput(true);
-            ObjectMapper mapper = new ObjectMapper();
-            String json = null;
+    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload, String token) throws IOException {
+        java.net.URL urlObject = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
+        con.setRequestMethod(method);
+        con.setRequestProperty("Content-Type", "application/json; utf-8");
+        con.setRequestProperty("Accept", "application/json");
+        con.setRequestProperty("Authorization", token);
+        con.setDoOutput(true);
+        con.setDoInput(true);
+        ObjectMapper mapper = new ObjectMapper();
+        String json = null;
             try {
                 json = mapper.writeValueAsString(payload);
             } catch (JsonProcessingException e) {
@@ -122,46 +116,32 @@ public class CommonService {
                 map = jsonObject.toMap();
             }
             return map;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new HashMap<>();
-        }
     }
 
 
-    public JSONArray getJSONArrayFromURL(String url) {
-        try {
-            java.net.URL urlObject = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
-            con.setRequestMethod("GET");
-            con.connect();
-            InputStreamReader inputStreamReader = new InputStreamReader(con.getInputStream());
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            JSONTokener jsonTokener = new JSONTokener(bufferedReader);
-            return new JSONArray(jsonTokener);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new JSONArray();
-        }
+    public JSONArray getJSONArrayFromURL(String url) throws IOException {
+        java.net.URL urlObject = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
+        con.setRequestMethod("GET");
+        con.connect();
+        InputStreamReader inputStreamReader = new InputStreamReader(con.getInputStream());
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        JSONTokener jsonTokener = new JSONTokener(bufferedReader);
+        return new JSONArray(jsonTokener);
     }
 
-    public JSONObject getJSONObjectFromURL(String url) {
-        try {
-            java.net.URL urlObject = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
-            con.setRequestMethod("GET");
-            con.connect();
-            InputStreamReader inputStreamReader = new InputStreamReader(con.getInputStream());
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            JSONTokener jsonTokener = new JSONTokener(bufferedReader);
-            return new JSONObject(jsonTokener);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new JSONObject();
-        }
+    public JSONObject getJSONObjectFromURL(String url) throws IOException {
+        java.net.URL urlObject = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
+        con.setRequestMethod("GET");
+        con.connect();
+        InputStreamReader inputStreamReader = new InputStreamReader(con.getInputStream());
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        JSONTokener jsonTokener = new JSONTokener(bufferedReader);
+        return new JSONObject(jsonTokener);
     }
 
-    public <T> List<T> convertJSONArrayToList(JSONArray jsonArray, Class<T> tClass) {
+    public <T> List<T> convertJSONArrayToList(JSONArray jsonArray, Class<T> tClass) throws IOException {
         List<T> list = new ArrayList<>();
         Gson g = new Gson();
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -174,7 +154,7 @@ public class CommonService {
         return list;
     }
 
-    private <T> List<T> returnEmployeeList(List<T> list) {
+    private <T> List<T> returnEmployeeList(List<T> list) throws IOException {
         PropertiesConfiguration config = new PropertiesConfiguration();
         try {
             config.load("application.properties");

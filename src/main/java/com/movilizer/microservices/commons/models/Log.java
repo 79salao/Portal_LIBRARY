@@ -74,5 +74,15 @@ public class Log {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    @Override
+    public String toString() {
+        return
+                component + " - " +
+                        calendar + " - " +
+                        severity + " - " +
+                        username + " - " +
+                        message;
+    }
 }
 

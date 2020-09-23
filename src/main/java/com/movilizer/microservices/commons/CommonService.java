@@ -233,7 +233,7 @@ public class CommonService {
      *
      * Takes a generic map and converts it to an ExtraField map.
      *
-     * @param parameterMap map to convert to extraFields map
+     * @param parameterMap map to convert to extraFields map.
      * @return returns the ExtraField map.
      */
     private Map<Long, List<ExtraField>> convertGenericMapToExtraFieldsMap(Map<String, Object> parameterMap) {

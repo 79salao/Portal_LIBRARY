@@ -47,8 +47,9 @@ public class CommonService {
      * @param service Service that owns the log.
      * @param url Url to the Monitoring microservice.
      *
+     * @return Returns the formed Log object.
      */
-    public void log(String severity, String message, String username, String service, String url) {
+    public Log log(String severity, String message, String username, String service, String url) {
         Log log = new Log(this.getDate(), service, severity, message, username);
         try {
             this.sendObjectAsJson(url, "POST", log);
@@ -60,6 +61,7 @@ public class CommonService {
             this.counter = 0;
             e.printStackTrace();
         }
+        return log;
     }
 
     /***

@@ -31,7 +31,8 @@ public class CommonService {
 
     public static final String CRITICAL_ERROR_MESSAGE = "CRITICAL ERROR. Communication with Monitoring failed 3 times.";
 
-    private int counter;
+    private int counter = 0;
+
 
     /***
      *
@@ -47,17 +48,11 @@ public class CommonService {
      */
     public Log log(String severity, String message, String username, String service, String url) {
         Log log = new Log(this.getDate(), service, severity, message, username);
-        try {
-            this.sendObjectAsJson(url, "POST", log);
-            return log;
-        } catch (IOException e) {
-            if (this.counter < 3) {
-                this.log(severity, message, username, service, url);
-                this.counter += 1;
-            }
-            this.counter = 0;
-            e.printStackTrace();
+        Map<String, Object> response = this.sendObjectAsJson(url, "POST", log);
+        if (response == null) {
             return null;
+        } else {
+            return log;
         }
     }
 
@@ -71,67 +66,19 @@ public class CommonService {
      *
      * @throws IOException
      *
-     * @return response JSON as Map<String, Object>
+     * @return returns the response JSON as Map<String, Object>, but if failed, returns null.
      */
-    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload) throws IOException {
-        java.net.URL urlObject = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
-        con.setRequestMethod(method);
-        con.setRequestProperty("Content-Type", "application/json; utf-8");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        con.setDoInput(true);
-        ObjectMapper mapper = new ObjectMapper();
-        String json = null;
+    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload) {
         try {
-                json = mapper.writeValueAsString(payload);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            try (OutputStream os = con.getOutputStream()) {
-                byte[] input = new byte[0];
-                if (json != null) {
-                    input = json.getBytes(StandardCharsets.UTF_8);
-                }
-                os.write(input, 0, input.length);
-            }
-            con.connect();
-            Map<String, Object> map;
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
-                StringBuilder response = new StringBuilder();
-                String responseLine = null;
-                while ((responseLine = br.readLine()) != null) {
-                    response.append(responseLine.trim());
-                }
-                JSONObject jsonObject = new JSONObject(response);
-                map = jsonObject.toMap();
-            }
-            return map;
-    }
-
-    /***
-     *
-     * Method to send objects as JSON between microservices with token.
-     *
-     * @param url Service url to call.
-     * @param method Http method to use.
-     * @param payload Object to send.
-     * @param token Authorization token.
-     *
-     * @return response JSON as Map<String, Object>
-     */
-    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload, String token) throws IOException {
-        java.net.URL urlObject = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
-        con.setRequestMethod(method);
-        con.setRequestProperty("Content-Type", "application/json; utf-8");
-        con.setRequestProperty("Accept", "application/json");
-        con.setRequestProperty("Authorization", token);
-        con.setDoOutput(true);
-        con.setDoInput(true);
-        ObjectMapper mapper = new ObjectMapper();
-        String json = null;
+            java.net.URL urlObject = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
+            con.setRequestMethod(method);
+            con.setRequestProperty("Content-Type", "application/json; utf-8");
+            con.setRequestProperty("Accept", "application/json");
+            con.setDoOutput(true);
+            con.setDoInput(true);
+            ObjectMapper mapper = new ObjectMapper();
+            String json = null;
             try {
                 json = mapper.writeValueAsString(payload);
             } catch (JsonProcessingException e) {
@@ -156,45 +103,139 @@ public class CommonService {
                 JSONObject jsonObject = new JSONObject(response);
                 map = jsonObject.toMap();
             }
-        return map;
+            counter = 0;
+            return map;
+        } catch (IOException e) {
+            if (counter < 3) {
+                this.sendObjectAsJson(url, method, payload);
+            }
+            counter = 0;
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /***
      *
-     * Gets the response from another microservice as a JSONArray.
+     * Method to send objects as JSON between microservices with token.
      *
-     * @param url
-     * @return returns the response as JSONArray
-     * @throws IOException
+     * @param url Service url to call.
+     * @param method Http method to use.
+     * @param payload Object to send.
+     * @param token Authorization token.
+     *
+     * @return response JSON as Map<String, Object>
      */
-    public JSONArray getJSONArrayFromURL(String url) throws IOException {
-        java.net.URL urlObject = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
-        con.setRequestMethod("GET");
-        con.connect();
-        InputStreamReader inputStreamReader = new InputStreamReader(con.getInputStream());
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        JSONTokener jsonTokener = new JSONTokener(bufferedReader);
-        return new JSONArray(jsonTokener);
+    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload, String token) {
+        try {
+            java.net.URL urlObject = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
+            con.setRequestMethod(method);
+            con.setRequestProperty("Content-Type", "application/json; utf-8");
+            con.setRequestProperty("Accept", "application/json");
+            con.setRequestProperty("Authorization", token);
+            con.setDoOutput(true);
+            con.setDoInput(true);
+            ObjectMapper mapper = new ObjectMapper();
+            String json = null;
+            try {
+                json = mapper.writeValueAsString(payload);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            try (OutputStream os = con.getOutputStream()) {
+                byte[] input = new byte[0];
+                if (json != null) {
+                    input = json.getBytes(StandardCharsets.UTF_8);
+                }
+                os.write(input, 0, input.length);
+            }
+            con.connect();
+            Map<String, Object> map;
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+                StringBuilder response = new StringBuilder();
+                String responseLine = null;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                JSONObject jsonObject = new JSONObject(response);
+                map = jsonObject.toMap();
+            }
+            counter = 0;
+            return map;
+        } catch (IOException e) {
+            if (counter < 3) {
+                this.sendObjectAsJson(url, method, payload);
+            }
+            e.printStackTrace();
+            counter = 0;
+            return null;
+
+        }
     }
 
     /***
      *
-     * Gets the response from another microservice as a JSONObject.
+     * Sends GET request to another microservice and returns the response as JSONArray.
+     *
+     * @param url url to which make the request.
+     *
+     * @throws IOException
+     *
+     * @return returns the response as JSONArray, or returns null if the operation fails.
+     */
+    public JSONArray getJSONArrayFromURL(String url) {
+        try {
+            java.net.URL urlObject = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
+            con.setRequestMethod("GET");
+            con.connect();
+            InputStreamReader inputStreamReader = new InputStreamReader(con.getInputStream());
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            JSONTokener jsonTokener = new JSONTokener(bufferedReader);
+            counter = 0;
+            return new JSONArray(jsonTokener);
+        } catch (IOException e) {
+            if (counter < 3) {
+                this.getJSONArrayFromURL(url);
+            }
+            e.printStackTrace();
+            counter = 0;
+            return null;
+        }
+    }
+
+    /***
+     *
+     * Sends GET request to another microservice and returns the response as JSONObject.
      *
      * @param url url of the microservice endpoint.
-     * @return returns the response as JSONObject.
+     *
      * @throws IOException
+     *
+     * @return returns the response as JSONObject, of returns null if the operation fails.
      */
-    public JSONObject getJSONObjectFromURL(String url) throws IOException {
-        java.net.URL urlObject = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
-        con.setRequestMethod("GET");
-        con.connect();
-        InputStreamReader inputStreamReader = new InputStreamReader(con.getInputStream());
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        JSONTokener jsonTokener = new JSONTokener(bufferedReader);
-        return new JSONObject(jsonTokener);
+    public JSONObject getJSONObjectFromURL(String url) {
+        try {
+            java.net.URL urlObject = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
+            con.setRequestMethod("GET");
+            con.connect();
+            InputStreamReader inputStreamReader = new InputStreamReader(con.getInputStream());
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            JSONTokener jsonTokener = new JSONTokener(bufferedReader);
+            counter = 0;
+            return new JSONObject(jsonTokener);
+        } catch (IOException e) {
+            if (counter < 3) {
+                this.getJSONArrayFromURL(url);
+            }
+            e.printStackTrace();
+            counter = 0;
+            return null;
+
+        }
     }
 
     /***

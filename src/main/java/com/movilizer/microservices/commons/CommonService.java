@@ -124,7 +124,7 @@ public class CommonService {
      * @param payload Object to send.
      * @param token Authorization token.
      *
-     * @return response JSON as Map<String, Object>
+     * @return returns the response JSON as Map<String, Object>
      */
     public Map<String, Object> sendObjectAsJson(String url, String method, Object payload, String token) {
         try {

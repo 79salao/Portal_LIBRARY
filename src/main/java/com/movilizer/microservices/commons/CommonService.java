@@ -64,8 +64,6 @@ public class CommonService {
      * @param method Http method to use.
      * @param payload Object to send.
      *
-     * @throws IOException
-     *
      * @return returns the response JSON as Map<String, Object>, but if failed, returns null.
      */
     public Map<String, Object> sendObjectAsJson(String url, String method, Object payload) {
@@ -181,7 +179,6 @@ public class CommonService {
      *
      * @param url url to which make the request.
      *
-     * @throws IOException
      *
      * @return returns the response as JSONArray, or returns null if the operation fails.
      */
@@ -211,8 +208,6 @@ public class CommonService {
      * Sends GET request to another microservice and returns the response as JSONObject.
      *
      * @param url url of the microservice endpoint.
-     *
-     * @throws IOException
      *
      * @return returns the response as JSONObject, of returns null if the operation fails.
      */
@@ -245,9 +240,8 @@ public class CommonService {
      * @param jsonArray JSONArray object to transform.
      * @param tClass Class object to which the JSONArray will be transformed.
      * @return returns a list of the specified object class.
-     * @throws IOException
      */
-    public <T> List<T> convertJSONArrayToList(JSONArray jsonArray, Class<T> tClass) throws IOException {
+    public <T> List<T> convertJSONArrayToList(JSONArray jsonArray, Class<T> tClass) {
         List<T> list = new ArrayList<>();
         Gson g = new Gson();
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -266,9 +260,8 @@ public class CommonService {
      *
      * @param list list of objects to transform.
      * @return returns the list transformed to an employee list.
-     * @throws IOException
      */
-    private <T> List<T> returnEmployeeList(List<T> list) throws IOException {
+    private <T> List<T> returnEmployeeList(List<T> list) {
         PropertiesConfiguration config = new PropertiesConfiguration();
         try {
             config.load("application.properties");

@@ -160,6 +160,23 @@ public class CommonService {
                 JSONObject jsonObject = new JSONObject(response);
                 map = jsonObject.toMap();
             }
+            if (map.get("status") != null) {
+                Map<String, Object> response = new HashMap<>();
+                switch (map.get("status").toString()) {
+                    case "401":
+                        response.put("failure", "true");
+                        response.put("error", "authorization");
+                        return response;
+                    case "404":
+                        response.put("failure", "true");
+                        response.put("error", "not found");
+                        return response;
+                    case "500":
+                        response.put("failure", "true");
+                        response.put("error", map.get("error"));
+                        return response;
+                }
+            }
             counter = 0;
             return map;
         } catch (IOException e) {

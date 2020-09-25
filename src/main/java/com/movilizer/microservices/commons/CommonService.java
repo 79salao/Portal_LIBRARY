@@ -239,11 +239,14 @@ public class CommonService {
      *
      * @param jsonArray JSONArray object to transform.
      * @param tClass Class object to which the JSONArray will be transformed.
-     * @return returns a list of the specified object class.
+     * @return returns a list of the specified object class, or null if th JSONArray is null.
      */
     public <T> List<T> convertJSONArrayToList(JSONArray jsonArray, Class<T> tClass) {
         List<T> list = new ArrayList<>();
         Gson g = new Gson();
+        if (jsonArray == null) {
+            return null;
+        }
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             list.add(g.fromJson(jsonObject.toString(), (Type) tClass));

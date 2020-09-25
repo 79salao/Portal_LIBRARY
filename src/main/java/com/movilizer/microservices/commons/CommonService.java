@@ -10,7 +10,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,12 +47,8 @@ public class CommonService {
      */
     public Log log(String severity, String message, String username, String service, String url) {
         Log log = new Log(this.getDate(), service, severity, message, username);
-        Map<String, Object> response = this.sendObjectAsJson(url, "POST", log);
-        if (response == null) {
-            return null;
-        } else {
-            return log;
-        }
+        this.sendObjectAsJson(url, "POST", log);
+        return log;
     }
 
     /***
@@ -102,14 +97,14 @@ public class CommonService {
                 map = jsonObject.toMap();
             }
             counter = 0;
-            return map;
+            return this.checkErrors(map);
         } catch (IOException e) {
             if (counter < 3) {
                 this.sendObjectAsJson(url, method, payload);
             }
             counter = 0;
             e.printStackTrace();
-            return null;
+            return this.checkErrors(null);
         }
     }
 
@@ -160,33 +155,14 @@ public class CommonService {
                 JSONObject jsonObject = new JSONObject(response);
                 map = jsonObject.toMap();
             }
-            if (map.get("status") != null) {
-                Map<String, Object> response = new HashMap<>();
-                switch (map.get("status").toString()) {
-                    case "401":
-                        response.put("failure", "true");
-                        response.put("error", "authorization");
-                        return response;
-                    case "404":
-                        response.put("failure", "true");
-                        response.put("error", "not found");
-                        return response;
-                    case "500":
-                        response.put("failure", "true");
-                        response.put("error", map.get("error"));
-                        return response;
-                }
-            }
-            counter = 0;
-            return map;
+            return this.checkErrors(map);
         } catch (IOException e) {
             if (counter < 3) {
                 this.sendObjectAsJson(url, method, payload);
             }
             e.printStackTrace();
             counter = 0;
-            return null;
-
+            return this.checkErrors(null);
         }
     }
 
@@ -199,24 +175,35 @@ public class CommonService {
      *
      * @return returns the response as JSONArray, or returns null if the operation fails.
      */
-    public JSONArray getJSONArrayFromURL(String url) {
+    public JSONArray getJSONArrayFromURL(String url, String token) {
         try {
             java.net.URL urlObject = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
             con.setRequestMethod("GET");
+            con.setRequestProperty("Authorization", token);
             con.connect();
-            InputStreamReader inputStreamReader = new InputStreamReader(con.getInputStream());
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            JSONTokener jsonTokener = new JSONTokener(bufferedReader);
+            Map<String, Object> map;
+            JSONObject jsonObject;
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+                StringBuilder response = new StringBuilder();
+                String responseLine = null;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                jsonObject = new JSONObject(response);
+                map = jsonObject.toMap();
+            }
+            map = this.checkErrors(map);
             counter = 0;
-            return new JSONArray(jsonTokener);
+            return new JSONArray(map);
         } catch (IOException e) {
             if (counter < 3) {
-                this.getJSONArrayFromURL(url);
+                this.getJSONArrayFromURL(url, token);
             }
             e.printStackTrace();
             counter = 0;
-            return null;
+            return new JSONArray(this.checkErrors(null));
         }
     }
 
@@ -228,24 +215,34 @@ public class CommonService {
      *
      * @return returns the response as JSONObject, of returns null if the operation fails.
      */
-    public JSONObject getJSONObjectFromURL(String url) {
+    public JSONObject getJSONObjectFromURL(String url, String token) {
         try {
             java.net.URL urlObject = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
             con.setRequestMethod("GET");
+            con.setRequestProperty("Authorization", token);
             con.connect();
-            InputStreamReader inputStreamReader = new InputStreamReader(con.getInputStream());
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            JSONTokener jsonTokener = new JSONTokener(bufferedReader);
+            Map<String, Object> map;
+            JSONObject jsonObject;
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+                StringBuilder response = new StringBuilder();
+                String responseLine = null;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                jsonObject = new JSONObject(response);
+            }
             counter = 0;
-            return new JSONObject(jsonTokener);
+            return this.checkJSONObjectErrors(jsonObject);
         } catch (IOException e) {
             if (counter < 3) {
-                this.getJSONArrayFromURL(url);
+                this.getJSONObjectFromURL(url, token);
+                counter += 1;
             }
             e.printStackTrace();
             counter = 0;
-            return null;
+            return (JSONObject) this.checkErrors(null);
 
         }
     }
@@ -333,6 +330,25 @@ public class CommonService {
             definitiveMap.put(Long.parseLong(string), extraFields);
         });
         return definitiveMap;
+    }
+
+    private Map<String, Object> checkErrors(Map<String, Object> map) {
+        Map<String, Object> response = new HashMap<>();
+        if (map == null) {
+            response.put("failure", "true");
+            response.put("error", "Communication failed.");
+            return response;
+        }
+        if (map.get("status") != null) {
+            response.put("failure", "true");
+            response.put("status", map.get("status"));
+            response.put("error", "Authentication failed.");
+        }
+        return map;
+    }
+
+    private JSONObject checkJSONObjectErrors(JSONObject jsonObject) {
+        return (JSONObject) this.checkErrors(jsonObject.toMap());
     }
 
     private String getDate() {

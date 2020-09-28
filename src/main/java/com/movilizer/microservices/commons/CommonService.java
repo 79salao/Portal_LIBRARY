@@ -50,7 +50,9 @@ public class CommonService {
      */
     public Log log(String severity, String message, String username, String service) {
         Log log = new Log(this.getDate(), service, severity, message, username);
-        this.sendObjectAsJson(this.URL_MONITORING, "POST", log, service, "MNTR");
+        if (this.sendObjectAsJson(this.URL_MONITORING, "POST", log, service, "MNTR").get("failure") != null) {
+            log.setSeverity("fail");
+        }
         return log;
     }
 

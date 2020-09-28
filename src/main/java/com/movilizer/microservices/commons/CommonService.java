@@ -10,6 +10,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,6 +29,9 @@ import java.util.*;
  */
 public class CommonService {
 
+    @Value("${url.monitoring}")
+    private String URL_MONITORING;
+
     public static final String CRITICAL_ERROR_MESSAGE = "CRITICAL ERROR. Communication with Monitoring failed 3 times.";
 
     private int counter = 0;
@@ -41,13 +45,12 @@ public class CommonService {
      * @param message Message to be logged.
      * @param username Username using the service.
      * @param service Service that owns the log.
-     * @param url Url to the Monitoring microservice.
      *
      * @return Returns the formed Log object, or returns null if the operation fails.
      */
-    public Log log(String severity, String message, String username, String service, String url) {
+    public Log log(String severity, String message, String username, String service) {
         Log log = new Log(this.getDate(), service, severity, message, username);
-        this.sendObjectAsJson(url, "POST", log);
+        this.sendObjectAsJson(this.URL_MONITORING, "POST", log, service, "MNTR");
         return log;
     }
 
@@ -61,7 +64,7 @@ public class CommonService {
      *
      * @return returns the response JSON as Map<String, Object>, but if failed, returns null.
      */
-    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload) {
+    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload, String fromMicroservice, String toMicroservice) {
         try {
             java.net.URL urlObject = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
@@ -97,10 +100,10 @@ public class CommonService {
                 map = jsonObject.toMap();
             }
             counter = 0;
-            return this.checkErrors(map);
+            return this.autoLog(this.checkErrors(map), fromMicroservice, toMicroservice);
         } catch (IOException e) {
             if (counter < 3) {
-                this.sendObjectAsJson(url, method, payload);
+                this.sendObjectAsJson(url, method, payload, fromMicroservice, toMicroservice);
             }
             counter = 0;
             e.printStackTrace();
@@ -119,7 +122,7 @@ public class CommonService {
      *
      * @return returns the response JSON as Map<String, Object>
      */
-    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload, String token) {
+    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload, String token, String fromMicroservice, String toMicroservice) {
         try {
             java.net.URL urlObject = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
@@ -155,14 +158,14 @@ public class CommonService {
                 JSONObject jsonObject = new JSONObject(response);
                 map = jsonObject.toMap();
             }
-            return this.checkErrors(map);
+            return this.autoLog(this.checkErrors(map), fromMicroservice, toMicroservice);
         } catch (IOException e) {
             if (counter < 3) {
-                this.sendObjectAsJson(url, method, payload);
+                this.sendObjectAsJson(url, method, payload, token, fromMicroservice, toMicroservice);
             }
             e.printStackTrace();
             counter = 0;
-            return this.checkErrors(null);
+            return this.autoLog(this.checkErrors(null), fromMicroservice, toMicroservice);
         }
     }
 
@@ -266,7 +269,7 @@ public class CommonService {
             list.add(g.fromJson(jsonObject.toString(), (Type) tClass));
         }
         if (tClass.getName().equals("Employee")) {
-            return this.returnEmployeeList(list);
+            return this.returnEmployeeList(list, "RGST", "");
         }
         return list;
     }
@@ -278,7 +281,7 @@ public class CommonService {
      * @param list list of objects to transform.
      * @return returns the list transformed to an employee list.
      */
-    private <T> List<T> returnEmployeeList(List<T> list) {
+    private <T> List<T> returnEmployeeList(List<T> list, String service, String token) {
         PropertiesConfiguration config = new PropertiesConfiguration();
         try {
             config.load("application.properties");
@@ -290,7 +293,7 @@ public class CommonService {
         List<Employee> provisionalEmployeeList = (List<Employee>) list;
         List<Long> employeeIds = new ArrayList<>();
         provisionalEmployeeList.forEach(employee -> employeeIds.add(employee.getId()));
-        Map<Long, List<ExtraField>> map = this.convertGenericMapToExtraFieldsMap(this.sendObjectAsJson(url + "/employees/extraFields", "GET", employeeIds));
+        Map<Long, List<ExtraField>> map = this.convertGenericMapToExtraFieldsMap(this.sendObjectAsJson(url + "/employees/extraFields", "GET", employeeIds, token, service, "EMPLYE"));
         List<Employee> definitiveEmployeeList = this.addExtraFieldsToEmployeeList(provisionalEmployeeList, map);
         return (List<T>) definitiveEmployeeList;
     }
@@ -343,6 +346,17 @@ public class CommonService {
             response.put("failure", "true");
             response.put("status", map.get("status"));
             response.put("error", "Authentication failed.");
+        }
+        return map;
+    }
+
+    private Map<String, Object> autoLog(Map<String, Object> map, String fromMicroservice, String toMicroservice) {
+        if (map.get("failure") == "true") {
+            String message = "Could not send POST request. Reason: " + map.get("error");
+            this.log("ERROR", message, null, fromMicroservice);
+        } else {
+            String message = "Sent POST request from " + fromMicroservice + " to " + toMicroservice;
+            this.log("ERROR", message, null, fromMicroservice);
         }
         return map;
     }

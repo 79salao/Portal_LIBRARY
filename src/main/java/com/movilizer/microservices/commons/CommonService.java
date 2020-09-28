@@ -46,7 +46,7 @@ public class CommonService {
      * @param username Username using the service.
      * @param service Service that owns the log.
      *
-     * @return Returns the formed Log object, or returns null if the operation fails.
+     * @return Returns the formed Log object, or returns the log object with severity set to "fail".
      */
     public Log log(String severity, String message, String username, String service) {
         Log log = new Log(this.getDate(), service, severity, message, username);
@@ -63,6 +63,8 @@ public class CommonService {
      * @param url Service url to call.
      * @param method Http method to use.
      * @param payload Object to send.
+     * @param fromMicroservice Microservice making the request.
+     * @param toMicroservice Microservice receiving the request.
      *
      * @return returns the response JSON as Map<String, Object>, but if failed, returns null.
      */
@@ -121,6 +123,8 @@ public class CommonService {
      * @param method Http method to use.
      * @param payload Object to send.
      * @param token Authorization token.
+     * @param fromMicroservice Microservice making the request.
+     * @param toMicroservice Microservice receiving the request.
      *
      * @return returns the response JSON as Map<String, Object>
      */
@@ -176,7 +180,7 @@ public class CommonService {
      * Sends GET request to another microservice and returns the response as JSONArray.
      *
      * @param url url to which make the request.
-     *
+     * @param token Authorization token.
      *
      * @return returns the response as JSONArray, or returns null if the operation fails.
      */
@@ -217,6 +221,7 @@ public class CommonService {
      * Sends GET request to another microservice and returns the response as JSONObject.
      *
      * @param url url of the microservice endpoint.
+     * @param token Authorization token.
      *
      * @return returns the response as JSONObject, of returns null if the operation fails.
      */
@@ -258,6 +263,7 @@ public class CommonService {
      *
      * @param jsonArray JSONArray object to transform.
      * @param tClass Class object to which the JSONArray will be transformed.
+     *
      * @return returns a list of the specified object class, or null if th JSONArray is null.
      */
     public <T> List<T> convertJSONArrayToList(JSONArray jsonArray, Class<T> tClass) {
@@ -271,7 +277,7 @@ public class CommonService {
             list.add(g.fromJson(jsonObject.toString(), (Type) tClass));
         }
         if (tClass.getName().equals("Employee")) {
-            return this.returnEmployeeList(list, "RGST", "");
+            return this.returnEmployeeList(list, "");
         }
         return list;
     }
@@ -281,9 +287,11 @@ public class CommonService {
      * Takes a list and returns a list of employees, including the extra fields.
      *
      * @param list list of objects to transform.
+     * @param token Authorization token.
+     *
      * @return returns the list transformed to an employee list.
      */
-    private <T> List<T> returnEmployeeList(List<T> list, String service, String token) {
+    private <T> List<T> returnEmployeeList(List<T> list, String token) {
         PropertiesConfiguration config = new PropertiesConfiguration();
         try {
             config.load("application.properties");
@@ -295,7 +303,7 @@ public class CommonService {
         List<Employee> provisionalEmployeeList = (List<Employee>) list;
         List<Long> employeeIds = new ArrayList<>();
         provisionalEmployeeList.forEach(employee -> employeeIds.add(employee.getId()));
-        Map<Long, List<ExtraField>> map = this.convertGenericMapToExtraFieldsMap(this.sendObjectAsJson(url + "/employees/extraFields", "GET", employeeIds, token, service, "EMPLYE"));
+        Map<Long, List<ExtraField>> map = this.convertGenericMapToExtraFieldsMap(this.sendObjectAsJson(url + "/employees/extraFields", "GET", employeeIds, token, "RGST", "EMPLYE"));
         List<Employee> definitiveEmployeeList = this.addExtraFieldsToEmployeeList(provisionalEmployeeList, map);
         return (List<T>) definitiveEmployeeList;
     }
@@ -306,6 +314,7 @@ public class CommonService {
      *
      * @param employeeList employee list to which add the extrafields to each employee.
      * @param extraFieldsMap map of extrafield to add to each employee.
+     *
      * @return returns the complete employee list.
      */
     private List<Employee> addExtraFieldsToEmployeeList(List<Employee> employeeList, Map<Long, List<ExtraField>> extraFieldsMap) {
@@ -321,6 +330,7 @@ public class CommonService {
      * Takes a generic map and converts it to an ExtraField map.
      *
      * @param parameterMap map to convert to extraFields map.
+     *
      * @return returns the ExtraField map.
      */
     private Map<Long, List<ExtraField>> convertGenericMapToExtraFieldsMap(Map<String, Object> parameterMap) {
@@ -337,6 +347,13 @@ public class CommonService {
         return definitiveMap;
     }
 
+    /***
+     *
+     * @param map Response object to check.
+     *
+     * @return Returns the original object if its correct, or returns a new map with the error information.
+     *
+     */
     private Map<String, Object> checkErrors(Map<String, Object> map) {
         Map<String, Object> response = new HashMap<>();
         if (map == null) {
@@ -352,6 +369,13 @@ public class CommonService {
         return map;
     }
 
+    /***
+     *
+     * @param map Response object to log.
+     * @param fromMicroservice Microservice making the request.
+     * @param toMicroservice Microservice receiving the request.
+     * @return returns the response object.
+     */
     private Map<String, Object> autoLog(Map<String, Object> map, String fromMicroservice, String toMicroservice) {
         if (map.get("failure") == "true") {
             String message = "Could not send POST request. Reason: " + map.get("error");

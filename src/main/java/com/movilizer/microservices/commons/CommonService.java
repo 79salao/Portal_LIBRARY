@@ -108,6 +108,7 @@ public class CommonService {
         } catch (IOException e) {
             if (counter < 3) {
                 this.sendObjectAsJson(url, method, payload, fromMicroservice, toMicroservice);
+                counter += 1;
             }
             counter = 0;
             e.printStackTrace();
@@ -168,6 +169,7 @@ public class CommonService {
         } catch (IOException e) {
             if (counter < 3) {
                 this.sendObjectAsJson(url, method, payload, token, fromMicroservice, toMicroservice);
+                counter += 1;
             }
             e.printStackTrace();
             counter = 0;
@@ -209,6 +211,7 @@ public class CommonService {
         } catch (IOException e) {
             if (counter < 3) {
                 this.getJSONArrayFromURL(url, token);
+                counter += 1;
             }
             e.printStackTrace();
             counter = 0;

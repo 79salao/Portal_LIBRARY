@@ -104,7 +104,12 @@ public class CommonService {
                 map = jsonObject.toMap();
             }
             counter = 0;
-            return this.autoLog(this.checkErrors(map), fromMicroservice, toMicroservice);
+            try {
+                this.autoLog(this.checkErrors(map), fromMicroservice, toMicroservice);
+            } catch (Exception ignored) {
+
+            }
+            return map;
         } catch (IOException e) {
             if (counter < 3) {
                 counter += 1;
@@ -165,7 +170,12 @@ public class CommonService {
                 JSONObject jsonObject = new JSONObject(response);
                 map = jsonObject.toMap();
             }
-            return this.autoLog(this.checkErrors(map), fromMicroservice, toMicroservice);
+            try {
+                this.autoLog(this.checkErrors(map), fromMicroservice, toMicroservice);
+            } catch (Exception ignored) {
+
+            }
+            return map;
         } catch (IOException e) {
             if (counter < 3) {
                 counter += 1;

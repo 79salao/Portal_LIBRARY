@@ -183,7 +183,7 @@ public class CommonService {
             }
             e.printStackTrace();
             counter = 0;
-            return this.autoLog(this.checkErrors(null), fromMicroservice, toMicroservice);
+            return this.checkErrors(null);
         }
     }
 

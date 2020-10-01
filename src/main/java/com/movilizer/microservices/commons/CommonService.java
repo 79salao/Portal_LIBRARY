@@ -107,8 +107,8 @@ public class CommonService {
             return this.autoLog(this.checkErrors(map), fromMicroservice, toMicroservice);
         } catch (IOException e) {
             if (counter < 3) {
-                this.sendObjectAsJson(url, method, payload, fromMicroservice, toMicroservice);
                 counter += 1;
+                this.sendObjectAsJson(url, method, payload, fromMicroservice, toMicroservice);
             }
             counter = 0;
             e.printStackTrace();
@@ -168,8 +168,8 @@ public class CommonService {
             return this.autoLog(this.checkErrors(map), fromMicroservice, toMicroservice);
         } catch (IOException e) {
             if (counter < 3) {
-                this.sendObjectAsJson(url, method, payload, token, fromMicroservice, toMicroservice);
                 counter += 1;
+                this.sendObjectAsJson(url, method, payload, token, fromMicroservice, toMicroservice);
             }
             e.printStackTrace();
             counter = 0;
@@ -210,8 +210,8 @@ public class CommonService {
             return new JSONArray(map);
         } catch (IOException e) {
             if (counter < 3) {
-                this.getJSONArrayFromURL(url, token);
                 counter += 1;
+                this.getJSONArrayFromURL(url, token);
             }
             e.printStackTrace();
             counter = 0;
@@ -250,8 +250,8 @@ public class CommonService {
             return this.checkJSONObjectErrors(jsonObject);
         } catch (IOException e) {
             if (counter < 3) {
-                this.getJSONObjectFromURL(url, token);
                 counter += 1;
+                this.getJSONObjectFromURL(url, token);
             }
             e.printStackTrace();
             counter = 0;

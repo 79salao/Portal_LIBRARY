@@ -10,7 +10,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,8 +28,7 @@ import java.util.*;
  */
 public class CommonService {
 
-    @Value("${url.monitoring}")
-    private String URL_MONITORING;
+    public String URL_MONITORING;
 
     public static final String CRITICAL_ERROR_MESSAGE = "CRITICAL ERROR. Communication with Monitoring failed 3 times.";
 

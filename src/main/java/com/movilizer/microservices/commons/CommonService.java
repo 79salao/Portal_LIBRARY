@@ -48,7 +48,7 @@ public class CommonService {
      */
     public Log log(String severity, String message, String username, String service) {
         Log log = new Log(this.getDate(), service, severity, message, username);
-        this.sendObjectAsJson(this.URL_MONITORING, "POST", log, service, "MNTR");
+        this.sendObjectAsJson(this.URL_MONITORING, "POST", log);
         return log;
     }
 
@@ -59,12 +59,10 @@ public class CommonService {
      * @param url Service url to call.
      * @param method Http method to use.
      * @param payload Object to send.
-     * @param fromMicroservice Microservice making the request.
-     * @param toMicroservice Microservice receiving the request.
      *
      * @return returns the response JSON as Map<String, Object>, but if failed, returns null.
      */
-    public void sendObjectAsJson(String url, String method, Object payload, String fromMicroservice, String toMicroservice) {
+    public void sendObjectAsJson(String url, String method, Object payload) {
         try {
             java.net.URL urlObject = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
@@ -92,7 +90,7 @@ public class CommonService {
         } catch (IOException e) {
             if (counter < 3) {
                 counter += 1;
-                this.sendObjectAsJson(url, method, payload, fromMicroservice, toMicroservice);
+                this.sendObjectAsJson(url, method, payload);
             }
             counter = 0;
             e.printStackTrace();

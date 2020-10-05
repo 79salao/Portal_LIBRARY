@@ -48,9 +48,7 @@ public class CommonService {
      */
     public Log log(String severity, String message, String username, String service) {
         Log log = new Log(this.getDate(), service, severity, message, username);
-        if (this.sendObjectAsJson(this.URL_MONITORING, "POST", log, service, "MNTR").get("failure") != null) {
-            log.setSeverity("fail");
-        }
+        this.sendObjectAsJson(this.URL_MONITORING, "POST", log, service, "MNTR");
         return log;
     }
 
@@ -66,7 +64,7 @@ public class CommonService {
      *
      * @return returns the response JSON as Map<String, Object>, but if failed, returns null.
      */
-    public Map<String, Object> sendObjectAsJson(String url, String method, Object payload, String fromMicroservice, String toMicroservice) {
+    public void sendObjectAsJson(String url, String method, Object payload, String fromMicroservice, String toMicroservice) {
         try {
             java.net.URL urlObject = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
@@ -90,24 +88,7 @@ public class CommonService {
                 os.write(input, 0, input.length);
             }
             con.connect();
-            Map<String, Object> map;
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
-                StringBuilder response = new StringBuilder();
-                String responseLine = null;
-                while ((responseLine = br.readLine()) != null) {
-                    response.append(responseLine.trim());
-                }
-                JSONObject jsonObject = new JSONObject(response);
-                map = jsonObject.toMap();
-            }
             counter = 0;
-            try {
-                this.autoLog(this.checkErrors(map), fromMicroservice, toMicroservice);
-            } catch (Exception ignored) {
-
-            }
-            return map;
         } catch (IOException e) {
             if (counter < 3) {
                 counter += 1;
@@ -115,7 +96,6 @@ public class CommonService {
             }
             counter = 0;
             e.printStackTrace();
-            return this.checkErrors(null);
         }
     }
 

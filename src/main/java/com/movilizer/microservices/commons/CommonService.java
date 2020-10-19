@@ -380,7 +380,7 @@ public class CommonService {
         return (JSONObject) this.checkErrors(jsonObject.toMap());
     }
 
-    private String getDate() {
+    public String getDate() {
         return Calendar.getInstance().get(Calendar.YEAR) + "/" +
                 Calendar.getInstance().get(Calendar.MONTH) + "/" +
                 Calendar.getInstance().get(Calendar.DAY_OF_MONTH) + " - " +

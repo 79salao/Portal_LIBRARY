@@ -77,12 +77,12 @@ public class Log {
 
     @Override
     public String toString() {
-        return
+        return id + " - " +
                 component + " - " +
-                        calendar + " - " +
-                        severity + " - " +
-                        username + " - " +
-                        message;
+                calendar + " - " +
+                severity + " - " +
+                username + " - " +
+                message;
     }
 }
 

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.movilizer.microservices.commons.models.Employee;
 import com.movilizer.microservices.commons.models.ExtraField;
-import com.movilizer.microservices.commons.models.Log;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.json.JSONArray;
@@ -33,24 +32,6 @@ public class CommonService {
     public static final String CRITICAL_ERROR_MESSAGE = "CRITICAL ERROR. Communication with Monitoring failed 3 times.";
 
     private int counter = 0;
-
-
-    /***
-     *
-     * Method to send logs to the Monitoring microservice.
-     *
-     * @param severity Severity of the log. It can be OK, INFO, WARNING, ERROR or CRITICAL.
-     * @param message Message to be logged.
-     * @param username Username using the service.
-     * @param service Service that owns the log.
-     *
-     * @return Returns the formed Log object, or returns the log object with severity set to "fail".
-     */
-    public Log log(String severity, String message, String username, String service) {
-        Log log = new Log(this.getDate(), service, severity, message, username);
-        this.sendObjectAsJson(this.URL_MONITORING, "POST", log);
-        return log;
-    }
 
     /***
      *
@@ -146,14 +127,14 @@ public class CommonService {
                 JSONObject jsonObject = new JSONObject(response);
                 map = jsonObject.toMap();
             }
-            try {
-                this.autoLog(this.checkErrors(map), fromMicroservice, toMicroservice);
-            } catch (Exception ignored) {
-
-            }
             return map;
         } catch (IOException e) {
             if (counter < 3) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                }
                 counter += 1;
                 this.sendObjectAsJson(url, method, payload, token, fromMicroservice, toMicroservice);
             }
@@ -354,24 +335,6 @@ public class CommonService {
             response.put("failure", "true");
             response.put("status", map.get("status"));
             response.put("error", "Authentication failed.");
-        }
-        return map;
-    }
-
-    /***
-     *
-     * @param map Response object to log.
-     * @param fromMicroservice Microservice making the request.
-     * @param toMicroservice Microservice receiving the request.
-     * @return returns the response object.
-     */
-    private Map<String, Object> autoLog(Map<String, Object> map, String fromMicroservice, String toMicroservice) {
-        if (map.get("failure") == "true") {
-            String message = "Could not send POST request. Reason: " + map.get("error");
-            this.log("ERROR", message, null, fromMicroservice);
-        } else {
-            String message = "Sent POST request from " + fromMicroservice + " to " + toMicroservice;
-            this.log("ERROR", message, null, fromMicroservice);
         }
         return map;
     }

@@ -128,7 +128,7 @@ public class CommonService {
                 JSONObject jsonObject = new JSONObject(response);
                 map = jsonObject.toMap();
             }
-            return map;
+            return this.checkErrors(map);
         } catch (IOException e) {
             if (counter < 3) {
                 try {
@@ -328,12 +328,10 @@ public class CommonService {
     private Map<String, Object> checkErrors(Map<String, Object> map) {
         Map<String, Object> response = new HashMap<>();
         if (map == null) {
-            response.put("failure", "true");
             response.put("error", "Communication failed.");
             return response;
         }
         if (map.get("status") != null) {
-            response.put("failure", "true");
             response.put("status", map.get("status"));
             response.put("error", "Authentication failed.");
         }

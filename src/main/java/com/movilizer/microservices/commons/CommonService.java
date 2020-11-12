@@ -254,6 +254,7 @@ public class CommonService {
 
     /***
      *
+     *
      * Takes a list and returns a list of employees, including the extra fields.
      *
      * @param list list of objects to transform.

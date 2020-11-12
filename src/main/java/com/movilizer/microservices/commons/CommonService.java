@@ -125,7 +125,7 @@ public class CommonService {
                 while ((responseLine = br.readLine()) != null) {
                     response.append(responseLine.trim());
                 }
-                JSONObject jsonObject = new JSONObject(response);
+                JSONObject jsonObject = new JSONObject(response.toString());
                 map = jsonObject.toMap();
             }
             return this.checkErrors(map);
@@ -170,7 +170,7 @@ public class CommonService {
                 while ((responseLine = br.readLine()) != null) {
                     response.append(responseLine.trim());
                 }
-                jsonObject = new JSONObject(response);
+                jsonObject = new JSONObject(response.toString());
             }
             map = this.checkErrors(jsonObject.toMap());
             counter = 0;
@@ -211,7 +211,7 @@ public class CommonService {
                 while ((responseLine = br.readLine()) != null) {
                     response.append(responseLine.trim());
                 }
-                jsonObject = new JSONObject(response);
+                jsonObject = new JSONObject(response.toString());
             }
             counter = 0;
             return this.checkJSONObjectErrors(jsonObject);
@@ -236,7 +236,7 @@ public class CommonService {
      *
      * @return returns a list of the specified object class, or null if th JSONArray is null.
      */
-    public <T> List<T> convertJSONArrayToList(JSONArray jsonArray, Class<T> tClass) {
+    public <T> List<T> convertJSONObjectToList(JSONArray jsonArray, Class<T> tClass) {
         List<T> list = new ArrayList<>();
         Gson g = new Gson();
         if (jsonArray == null) {

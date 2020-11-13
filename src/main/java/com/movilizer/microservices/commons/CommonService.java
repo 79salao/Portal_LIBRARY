@@ -154,7 +154,7 @@ public class CommonService {
      *
      * @return returns the response as JSONArray, or returns null if the operation fails.
      */
-    public JSONObject getJSONArrayFromURL(String url, String token) {
+    public JSONArray getJSONArrayFromURL(String url, String token) {
         try {
             java.net.URL urlObject = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
@@ -174,7 +174,7 @@ public class CommonService {
             }
             map = this.checkErrors(jsonObject.toMap());
             counter = 0;
-            return new JSONObject(map);
+            return new JSONArray(map);
         } catch (IOException e) {
             if (counter < 3) {
                 counter += 1;
@@ -182,7 +182,7 @@ public class CommonService {
             }
             e.printStackTrace();
             counter = 0;
-            return new JSONObject(this.checkErrors(null));
+            return new JSONArray(this.checkErrors(null));
         }
     }
 

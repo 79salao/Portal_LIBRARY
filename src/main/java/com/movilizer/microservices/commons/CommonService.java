@@ -162,7 +162,7 @@ public class CommonService {
             con.setRequestProperty("Authorization", token);
             con.connect();
             Map<String, Object> map;
-            JSONObject jsonObject;
+            JSONArray jsonObject;
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
                 StringBuilder response = new StringBuilder();
@@ -170,11 +170,9 @@ public class CommonService {
                 while ((responseLine = br.readLine()) != null) {
                     response.append(responseLine.trim());
                 }
-                jsonObject = new JSONObject(response.toString());
+                jsonObject = new JSONArray(response.toString());
             }
-            map = this.checkErrors(jsonObject.toMap());
-            counter = 0;
-            return new JSONArray(map);
+            return jsonObject;
         } catch (IOException e) {
             if (counter < 3) {
                 counter += 1;

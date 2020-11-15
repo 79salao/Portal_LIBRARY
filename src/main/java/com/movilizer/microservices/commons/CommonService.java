@@ -40,51 +40,6 @@ public class CommonService {
      * @param url Service url to call.
      * @param method Http method to use.
      * @param payload Object to send.
-     *
-     * @return returns the response JSON as Map<String, Object>, but if failed, returns null.
-     */
-    public void sendObjectAsJson(String url, String method, Object payload) {
-        try {
-            java.net.URL urlObject = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
-            con.setRequestMethod(method);
-            con.setRequestProperty("Content-Type", "application/json; utf-8");
-            con.setRequestProperty("Accept", "application/json");
-            con.setDoOutput(true);
-            con.setDoInput(true);
-            ObjectMapper mapper = new ObjectMapper();
-            String json = null;
-            try {
-                json = mapper.writeValueAsString(payload);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            try (OutputStream os = con.getOutputStream()) {
-                byte[] input = new byte[0];
-                if (json != null) {
-                    input = json.getBytes(StandardCharsets.UTF_8);
-                }
-                os.write(input, 0, input.length);
-            }
-            con.connect();
-            counter = 0;
-        } catch (IOException e) {
-            if (counter < 3) {
-                counter += 1;
-                this.sendObjectAsJson(url, method, payload);
-            }
-            counter = 0;
-            e.printStackTrace();
-        }
-    }
-
-    /***
-     *
-     * Method to send objects as JSON between microservices with token.
-     *
-     * @param url Service url to call.
-     * @param method Http method to use.
-     * @param payload Object to send.
      * @param token Authorization token.
      * @param fromMicroservice Microservice making the request.
      * @param toMicroservice Microservice receiving the request.
@@ -102,19 +57,21 @@ public class CommonService {
             con.setRequestProperty("Authorization", token);
             con.setDoOutput(true);
             con.setDoInput(true);
-            ObjectMapper mapper = new ObjectMapper();
-            String json = null;
-            try {
-                json = mapper.writeValueAsString(payload);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            try (OutputStream os = con.getOutputStream()) {
-                byte[] input = new byte[0];
-                if (json != null) {
-                    input = json.getBytes(StandardCharsets.UTF_8);
+            if (payload != null) {
+                ObjectMapper mapper = new ObjectMapper();
+                String json = null;
+                try {
+                    json = mapper.writeValueAsString(payload);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
                 }
-                os.write(input, 0, input.length);
+                try (OutputStream os = con.getOutputStream()) {
+                    byte[] input = new byte[0];
+                    if (json != null) {
+                        input = json.getBytes(StandardCharsets.UTF_8);
+                    }
+                    os.write(input, 0, input.length);
+                }
             }
             con.connect();
             Map<String, Object> map;

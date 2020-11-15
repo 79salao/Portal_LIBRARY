@@ -117,6 +117,8 @@ public class CommonService {
             HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
             con.setRequestMethod("GET");
             con.setRequestProperty("Authorization", token);
+            con.setRequestProperty("Content-Type", "application/json; utf-8");
+            con.setRequestProperty("Accept", "application/json");
             con.connect();
             Map<String, Object> map;
             JSONArray jsonObject;

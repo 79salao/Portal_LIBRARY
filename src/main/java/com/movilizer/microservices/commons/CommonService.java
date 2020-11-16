@@ -104,6 +104,73 @@ public class CommonService {
 
     /***
      *
+     * Method to send objects as JSON between microservices with token.
+     *
+     * @param url Service url to call.
+     * @param method Http method to use.
+     * @param payload Object to send.
+     * @param token Authorization token.
+     *
+     *
+     * @return returns the response JSON as Map<String, Object>
+     */
+    public List<Object> sendObjectsAsJson(String url, String method, Object payload, String token) {
+        try {
+            java.net.URL urlObject = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
+            con.setRequestMethod(method);
+            con.setRequestProperty("Content-Type", "application/json; utf-8");
+            con.setRequestProperty("Accept", "application/json");
+            con.setRequestProperty("Authorization", token);
+            con.setDoOutput(true);
+            con.setDoInput(true);
+            if (payload != null) {
+                ObjectMapper mapper = new ObjectMapper();
+                String json = null;
+                try {
+                    json = mapper.writeValueAsString(payload);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+                try (OutputStream os = con.getOutputStream()) {
+                    byte[] input = new byte[0];
+                    if (json != null) {
+                        input = json.getBytes(StandardCharsets.UTF_8);
+                    }
+                    os.write(input, 0, input.length);
+                }
+            }
+            con.connect();
+            List<Object> list;
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+                StringBuilder response = new StringBuilder();
+                String responseLine = null;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                JSONArray jsonArray = new JSONArray(response.toString());
+                list = jsonArray.toList();
+            }
+            return list;
+        } catch (IOException e) {
+            if (counter < 3) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                }
+                counter += 1;
+                this.sendObjectsAsJson(url, method, payload, token);
+            }
+            e.printStackTrace();
+            counter = 0;
+            return null;
+        }
+    }
+
+    /***
+     *
      * Sends GET request to another microservice and returns the response as JSONArray.
      *
      * @param url url to which make the request.
@@ -142,6 +209,7 @@ public class CommonService {
             return new JSONArray(this.checkErrors(null));
         }
     }
+
 
     /***
      *

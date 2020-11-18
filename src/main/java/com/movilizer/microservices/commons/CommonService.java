@@ -44,6 +44,7 @@ public class CommonService {
      * @return returns the response JSON as Map<String, Object>
      */
     public Map<String, Object> sendObjectAsJson(String url, String method, Object payload, String token, String fromMicroservice, String toMicroservice) {
+        Map<String, Object> map = null;
         try {
             java.net.URL urlObject = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
@@ -70,7 +71,7 @@ public class CommonService {
                 }
             }
             con.connect();
-            Map<String, Object> map;
+
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
                 StringBuilder response = new StringBuilder();
@@ -94,7 +95,7 @@ public class CommonService {
             }
             e.printStackTrace();
             counter = 0;
-            return null;
+            return map;
         }
     }
 
@@ -111,6 +112,7 @@ public class CommonService {
      * @return returns the response JSON as Map<String, Object>
      */
     public List<Object> sendObjectsAsJson(String url, String method, Object payload, String token) {
+        List<Object> list = null;
         try {
             java.net.URL urlObject = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
@@ -137,7 +139,6 @@ public class CommonService {
                 }
             }
             con.connect();
-            List<Object> list;
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
                 StringBuilder response = new StringBuilder();
@@ -161,7 +162,7 @@ public class CommonService {
             }
             e.printStackTrace();
             counter = 0;
-            return null;
+            return list;
         }
     }
 
@@ -175,6 +176,7 @@ public class CommonService {
      * @return returns the response as JSONArray, or returns null if the operation fails.
      */
     public JSONArray getJSONArrayFromURL(String url, String token) {
+        JSONArray jsonObject = null;
         try {
             java.net.URL urlObject = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
@@ -183,8 +185,6 @@ public class CommonService {
             con.setRequestProperty("Content-Type", "application/json; utf-8");
             con.setRequestProperty("Accept", "application/json");
             con.connect();
-            Map<String, Object> map;
-            JSONArray jsonObject;
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
                 StringBuilder response = new StringBuilder();
@@ -202,7 +202,7 @@ public class CommonService {
             }
             e.printStackTrace();
             counter = 0;
-            return null;
+            return jsonObject;
         }
     }
 
@@ -217,14 +217,13 @@ public class CommonService {
      * @return returns the response as JSONObject, of returns null if the operation fails.
      */
     public JSONObject getJSONObjectFromURL(String url, String token) {
+        JSONObject jsonObject = null;
         try {
             java.net.URL urlObject = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
             con.setRequestMethod("GET");
             con.setRequestProperty("Authorization", token);
             con.connect();
-            Map<String, Object> map;
-            JSONObject jsonObject;
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
                 StringBuilder response = new StringBuilder();
@@ -243,7 +242,7 @@ public class CommonService {
             }
             e.printStackTrace();
             counter = 0;
-            return null;
+            return jsonObject;
 
         }
     }
@@ -289,26 +288,6 @@ public class CommonService {
             definitiveMap.put(Long.parseLong(string), extraFields);
         });
         return definitiveMap;
-    }
-
-    /***
-     *
-     * @param map Response object to check.
-     *
-     * @return Returns the original object if its correct, or returns a new map with the error information.
-     *
-     */
-    private Map<String, Object> checkErrors(Map<String, Object> map) {
-        Map<String, Object> response = new HashMap<>();
-        if (map == null) {
-            response.put("error", "Communication failed.");
-            return response;
-        }
-        if (map.get("status") != null) {
-            response.put("status", map.get("status"));
-            response.put("error", "Authentication failed.");
-        }
-        return map;
     }
 
     public String getDate() {

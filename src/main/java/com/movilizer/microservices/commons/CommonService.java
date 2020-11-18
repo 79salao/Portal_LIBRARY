@@ -81,7 +81,7 @@ public class CommonService {
                 JSONObject jsonObject = new JSONObject(response.toString());
                 map = jsonObject.toMap();
             }
-            return this.checkErrors(map);
+            return map;
         } catch (IOException e) {
             if (counter < 3) {
                 try {
@@ -94,7 +94,7 @@ public class CommonService {
             }
             e.printStackTrace();
             counter = 0;
-            return this.checkErrors(null);
+            return null;
         }
     }
 
@@ -202,7 +202,7 @@ public class CommonService {
             }
             e.printStackTrace();
             counter = 0;
-            return new JSONArray(this.checkErrors(null));
+            return null;
         }
     }
 
@@ -235,7 +235,7 @@ public class CommonService {
                 jsonObject = new JSONObject(response.toString());
             }
             counter = 0;
-            return this.checkJSONObjectErrors(jsonObject);
+            return jsonObject;
         } catch (IOException e) {
             if (counter < 3) {
                 counter += 1;
@@ -243,7 +243,7 @@ public class CommonService {
             }
             e.printStackTrace();
             counter = 0;
-            return (JSONObject) this.checkErrors(null);
+            return null;
 
         }
     }
@@ -309,10 +309,6 @@ public class CommonService {
             response.put("error", "Authentication failed.");
         }
         return map;
-    }
-
-    private JSONObject checkJSONObjectErrors(JSONObject jsonObject) {
-        return (JSONObject) this.checkErrors(jsonObject.toMap());
     }
 
     public String getDate() {

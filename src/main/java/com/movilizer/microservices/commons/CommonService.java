@@ -3,10 +3,7 @@ package com.movilizer.microservices.commons;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.movilizer.microservices.commons.models.Employee;
 import com.movilizer.microservices.commons.models.ExtraField;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,7 +11,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -267,58 +263,10 @@ public class CommonService {
         if (jsonArray == null) {
             return null;
         }
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-            list.add(g.fromJson(jsonObject.toString(), (Type) tClass));
-        }
-        if (tClass.getName().equals("Employee")) {
-            return this.returnEmployeeList(list, "");
-        }
-        return list;
-    }
-
-    /***
-     *
-     *
-     * Takes a list and returns a list of employees, including the extra fields.
-     *
-     * @param list list of objects to transform.
-     * @param token Authorization token.
-     *
-     * @return returns the list transformed to an employee list.
-     */
-    private <T> List<T> returnEmployeeList(List<T> list, String token) {
-        PropertiesConfiguration config = new PropertiesConfiguration();
-        try {
-            config.load("application.properties");
-        } catch (ConfigurationException e) {
-            e.printStackTrace();
-        }
-        String url = config.getString("someKey");
-
-        List<Employee> provisionalEmployeeList = (List<Employee>) list;
-        List<Long> employeeIds = new ArrayList<>();
-        provisionalEmployeeList.forEach(employee -> employeeIds.add(employee.getId()));
-        Map<Long, List<ExtraField>> map = this.convertGenericMapToExtraFieldsMap(this.sendObjectAsJson(url + "/employees/extraFields", "GET", employeeIds, token, "RGST", "EMPLYE"));
-        List<Employee> definitiveEmployeeList = this.addExtraFieldsToEmployeeList(provisionalEmployeeList, map);
-        return (List<T>) definitiveEmployeeList;
-    }
-
-    /***
-     *
-     * Takes a list of employees and assigns the list of extrafields to each employee.
-     *
-     * @param employeeList employee list to which add the extrafields to each employee.
-     * @param extraFieldsMap map of extrafield to add to each employee.
-     *
-     * @return returns the complete employee list.
-     */
-    private List<Employee> addExtraFieldsToEmployeeList(List<Employee> employeeList, Map<Long, List<ExtraField>> extraFieldsMap) {
-        List<Employee> definitiveList = new ArrayList<>();
-        employeeList.forEach(employee -> {
-            employee.setExtraFields(extraFieldsMap.get(employee.getId()));
+        jsonArray.toList().forEach(o -> {
+            g.fromJson(o.toString(), tClass);
         });
-        return definitiveList;
+        return list;
     }
 
     /***

@@ -8,10 +8,7 @@ import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.AmazonRoute53ClientBuilder;
 import com.amazonaws.services.route53.model.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DNSService {
 
@@ -36,6 +33,9 @@ public class DNSService {
     private Map<String, List<String>> getIpsMap(List<ResourceRecordSet> resourceRecordSetList, String DNS) {
         Map<String, List<String>> returnMap = new HashMap<>();
         for (ResourceRecordSet resourceRecordSet : resourceRecordSetList) {
+            if (resourceRecordSet.getName().equalsIgnoreCase("ep-cassandra-service.employee-portal-service-discovery-namespace")) {
+                returnMap.put("cassandra", Collections.singletonList(resourceRecordSet.getResourceRecords().get(0).getValue()));
+            }
             if (resourceRecordSet.getName().equalsIgnoreCase(DNS)) {
                 List<String> educationList = new ArrayList<>();
                 List<String> employeeList = new ArrayList<>();

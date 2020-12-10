@@ -49,7 +49,7 @@ public class CommonService {
             java.net.URL urlObject = new URL(url);
             HttpURLConnection con = (HttpURLConnection) urlObject.openConnection();
             con.setRequestMethod(method);
-            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Content-Type", "application/json        ");
             con.setRequestProperty("Accept", "application/json");
             con.setRequestProperty("Authorization", token);
             con.setDoOutput(true);

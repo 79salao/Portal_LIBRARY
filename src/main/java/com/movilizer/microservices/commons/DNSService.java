@@ -33,10 +33,10 @@ public class DNSService {
     private Map<String, List<String>> getIpsMap(List<ResourceRecordSet> resourceRecordSetList, String DNS) {
         Map<String, List<String>> returnMap = new HashMap<>();
         for (ResourceRecordSet resourceRecordSet : resourceRecordSetList) {
-            if (resourceRecordSet.getName().equalsIgnoreCase("ep-cassandra-service.employee-portal-service-discovery-namespace")) {
+            if (resourceRecordSet.getName().equalsIgnoreCase("ep-cassandra-service.employee-portal-service-discovery-namespace.")) {
                 returnMap.put("cassandra", Collections.singletonList(resourceRecordSet.getResourceRecords().get(0).getValue()));
             }
-            if (resourceRecordSet.getName().equalsIgnoreCase(DNS)) {
+            if (resourceRecordSet.getName().equalsIgnoreCase("employee-portal.employee-portal-service-discovery-namespace.")) {
                 List<String> educationList = new ArrayList<>();
                 List<String> employeeList = new ArrayList<>();
                 List<String> entitiesList = new ArrayList<>();

@@ -25,12 +25,12 @@ public class DNSService {
                 .withHostedZoneId(hostedZone.getId());
         ListResourceRecordSetsResult listResourceRecordSetsResult = route53.listResourceRecordSets(listResourceRecordSetsRequest);
         List<ResourceRecordSet> resourceRecordSetList = listResourceRecordSetsResult.getResourceRecordSets();
-        Map<String, List<String>> returnMap = new HashMap<>(this.getIpsMap(resourceRecordSetList, DNS));
+        Map<String, List<String>> returnMap = new HashMap<>(this.getIpsMap(resourceRecordSetList));
         System.out.println(returnMap);
         return returnMap;
     }
 
-    private Map<String, List<String>> getIpsMap(List<ResourceRecordSet> resourceRecordSetList, String DNS) {
+    private Map<String, List<String>> getIpsMap(List<ResourceRecordSet> resourceRecordSetList) {
         Map<String, List<String>> returnMap = new HashMap<>();
         for (ResourceRecordSet resourceRecordSet : resourceRecordSetList) {
             if (resourceRecordSet.getName().equalsIgnoreCase("ep-cassandra-service.employee-portal-service-discovery-namespace.")) {

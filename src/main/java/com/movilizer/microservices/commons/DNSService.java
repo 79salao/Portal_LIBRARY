@@ -7,8 +7,6 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.AmazonRoute53ClientBuilder;
 import com.amazonaws.services.route53.model.*;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,28 +15,8 @@ import java.util.Map;
 
 public class DNSService {
 
-    private String AWS_ACCESS_KEY_ID;
 
-    private String AWS_SECRET_KEY_ID;
-
-    private final String ROUT53_HOSTED_ZONE_ID;
-
-    private final String DNS;
-
-    public DNSService() {
-        PropertiesConfiguration config = new PropertiesConfiguration();
-        try {
-            config.load("application.properties");
-        } catch (ConfigurationException e) {
-            e.printStackTrace();
-        }
-        AWS_SECRET_KEY_ID = config.getString("aws.accesskey.id");
-        AWS_SECRET_KEY_ID = config.getString("aws.secretkey.id");
-        ROUT53_HOSTED_ZONE_ID = config.getString("aws.hostedzone.id");
-        DNS = config.getString("dns");
-    }
-
-    public Map<String, List<String>> getMicroservicesIps() {
+    public Map<String, List<String>> getMicroservicesIps(String AWS_ACCESS_KEY_ID, String AWS_SECRET_KEY_ID, String ROUT53_HOSTED_ZONE_ID, String DNS) {
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(AWS_ACCESS_KEY_ID, AWS_SECRET_KEY_ID);
         AmazonRoute53 route53 = AmazonRoute53ClientBuilder
                 .standard()
@@ -50,12 +28,12 @@ public class DNSService {
                 .withHostedZoneId(hostedZone.getId());
         ListResourceRecordSetsResult listResourceRecordSetsResult = route53.listResourceRecordSets(listResourceRecordSetsRequest);
         List<ResourceRecordSet> resourceRecordSetList = listResourceRecordSetsResult.getResourceRecordSets();
-        Map<String, List<String>> returnMap = new HashMap<>(this.getIpsMap(resourceRecordSetList));
+        Map<String, List<String>> returnMap = new HashMap<>(this.getIpsMap(resourceRecordSetList, DNS));
         System.out.println(returnMap);
         return returnMap;
     }
 
-    private Map<String, List<String>> getIpsMap(List<ResourceRecordSet> resourceRecordSetList) {
+    private Map<String, List<String>> getIpsMap(List<ResourceRecordSet> resourceRecordSetList, String DNS) {
         Map<String, List<String>> returnMap = new HashMap<>();
         for (ResourceRecordSet resourceRecordSet : resourceRecordSetList) {
             if (resourceRecordSet.getName().equalsIgnoreCase(DNS)) {

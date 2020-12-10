@@ -108,15 +108,4 @@ public class DNSService {
         return returnMap;
     }
 
-    private ResourceRecordSet getResourceRecordSetByServiceId(String id, List<ResourceRecordSet> resourceRecordSets) {
-        for (ResourceRecordSet resourceRecordSet : resourceRecordSets) {
-            System.out.println(resourceRecordSet.getName());
-            if (resourceRecordSet.getName().split("-")[1].equalsIgnoreCase(id)) {
-
-                return resourceRecordSet;
-            }
-        }
-        return null;
-    }
-
 }

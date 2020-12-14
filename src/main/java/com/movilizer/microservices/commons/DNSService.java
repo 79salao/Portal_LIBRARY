@@ -35,10 +35,10 @@ public class DNSService {
     private Map<String, List<String>> getIpsMap(List<ResourceRecordSet> resourceRecordSetList) {
         Map<String, List<String>> returnMap = new HashMap<>();
 
-                List<String> educationList = new ArrayList<>();
-                List<String> employeeList = new ArrayList<>();
-                List<String> entitiesList = new ArrayList<>();
-                List<String> experienceList = new ArrayList<>();
+        List<String> educationList = new ArrayList<>();
+        List<String> employeeList = new ArrayList<>();
+        List<String> entitiesList = new ArrayList<>();
+        List<String> experienceList = new ArrayList<>();
         List<String> fileList = new ArrayList<>();
         List<String> monitoringList = new ArrayList<>();
         List<String> projectList = new ArrayList<>();
@@ -49,6 +49,7 @@ public class DNSService {
         List<String> dynamicpropertiesList = new ArrayList<>();
         List<String> proxyList = new ArrayList<>();
         List<String> authenticationList = new ArrayList<>();
+        List<String> cassandra = new ArrayList<>();
         educationList.add("http://" + "54.78.9.131" + ":9010");
         employeeList.add("http://" + "54.78.9.131" + ":9011");
         entitiesList.add("http://" + "54.78.9.131" + ":9012");
@@ -63,6 +64,7 @@ public class DNSService {
         dynamicpropertiesList.add("http://" + "54.78.9.131" + ":9021");
         authenticationList.add("http://" + "54.78.9.131" + ":9012");
         proxyList.add("http://" + "54.78.9.131" + ":9023");
+        cassandra.add("http://" + "54.194.79.132");
         returnMap.put("education", educationList);
         returnMap.put("employees", employeeList);
         returnMap.put("entities", entitiesList);

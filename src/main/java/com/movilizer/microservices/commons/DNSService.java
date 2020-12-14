@@ -79,6 +79,7 @@ public class DNSService {
         returnMap.put("dynamicproperties", dynamicpropertiesList);
         returnMap.put("authentication", authenticationList);
         returnMap.put("proxy", proxyList);
+        returnMap.put("cassandra", cassandra);
         return returnMap;
     }
 

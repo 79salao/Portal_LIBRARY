@@ -8,10 +8,12 @@ import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.AmazonRoute53ClientBuilder;
 import com.amazonaws.services.route53.model.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DNSService {
-
 
     public Map<String, List<String>> getMicroservicesIps(String AWS_ACCESS_KEY_ID, String AWS_SECRET_KEY_ID, String ROUT53_HOSTED_ZONE_ID, String DNS) {
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(AWS_ACCESS_KEY_ID, AWS_SECRET_KEY_ID);
@@ -32,57 +34,49 @@ public class DNSService {
 
     private Map<String, List<String>> getIpsMap(List<ResourceRecordSet> resourceRecordSetList) {
         Map<String, List<String>> returnMap = new HashMap<>();
-        for (ResourceRecordSet resourceRecordSet : resourceRecordSetList) {
-            if (resourceRecordSet.getName().equalsIgnoreCase("ep-cassandra-service.employee-portal-service-discovery-namespace.")) {
-                returnMap.put("cassandra", Collections.singletonList(resourceRecordSet.getResourceRecords().get(0).getValue()));
-            }
-            if (resourceRecordSet.getName().equalsIgnoreCase("employee-portal.employee-portal-service-discovery-namespace.")) {
+
                 List<String> educationList = new ArrayList<>();
                 List<String> employeeList = new ArrayList<>();
                 List<String> entitiesList = new ArrayList<>();
                 List<String> experienceList = new ArrayList<>();
-                List<String> fileList = new ArrayList<>();
-                List<String> monitoringList = new ArrayList<>();
-                List<String> projectList = new ArrayList<>();
-                List<String> registerList = new ArrayList<>();
-                List<String> categoriesList = new ArrayList<>();
-                List<String> skillsList = new ArrayList<>();
-                List<String> userskillsList = new ArrayList<>();
-                List<String> dynamicpropertiesList = new ArrayList<>();
-                List<String> proxyList = new ArrayList<>();
-                List<String> authenticationList = new ArrayList<>();
-                for (ResourceRecord resourceRecord : resourceRecordSet.getResourceRecords()) {
-                    educationList.add("http://" + resourceRecord.getValue() + ":9010");
-                    employeeList.add("http://" + resourceRecord.getValue() + ":9011");
-                    entitiesList.add("http://" + resourceRecord.getValue() + ":9012");
-                    experienceList.add("http://" + resourceRecord.getValue() + ":9013");
-                    fileList.add("http://" + resourceRecord.getValue() + ":9014");
-                    monitoringList.add("http://" + resourceRecord.getValue() + ":9015");
-                    projectList.add("http://" + resourceRecord.getValue() + ":9016");
-                    registerList.add("http://" + resourceRecord.getValue() + ":9017");
-                    categoriesList.add("http://" + resourceRecord.getValue() + ":9018");
-                    skillsList.add("http://" + resourceRecord.getValue() + ":9019");
-                    userskillsList.add("http://" + resourceRecord.getValue() + ":9020");
-                    dynamicpropertiesList.add("http://" + resourceRecord.getValue() + ":9021");
-                    authenticationList.add("http://" + resourceRecord.getValue() + ":9012");
-                    proxyList.add("http://" + resourceRecord.getValue() + ":9023");
-                }
-                returnMap.put("education", educationList);
-                returnMap.put("employees", employeeList);
-                returnMap.put("entities", entitiesList);
-                returnMap.put("experiences", experienceList);
-                returnMap.put("file", fileList);
-                returnMap.put("monitoring", monitoringList);
-                returnMap.put("projects", projectList);
-                returnMap.put("register", registerList);
-                returnMap.put("categories", categoriesList);
-                returnMap.put("skills", skillsList);
-                returnMap.put("userskills", userskillsList);
-                returnMap.put("dynamicproperties", dynamicpropertiesList);
-                returnMap.put("authentication", authenticationList);
-                returnMap.put("proxy", proxyList);
-            }
-        }
+        List<String> fileList = new ArrayList<>();
+        List<String> monitoringList = new ArrayList<>();
+        List<String> projectList = new ArrayList<>();
+        List<String> registerList = new ArrayList<>();
+        List<String> categoriesList = new ArrayList<>();
+        List<String> skillsList = new ArrayList<>();
+        List<String> userskillsList = new ArrayList<>();
+        List<String> dynamicpropertiesList = new ArrayList<>();
+        List<String> proxyList = new ArrayList<>();
+        List<String> authenticationList = new ArrayList<>();
+        educationList.add("http://" + "54.78.9.131" + ":9010");
+        employeeList.add("http://" + "54.78.9.131" + ":9011");
+        entitiesList.add("http://" + "54.78.9.131" + ":9012");
+        experienceList.add("http://" + "54.78.9.131" + ":9013");
+        fileList.add("http://" + "54.78.9.131" + ":9014");
+        monitoringList.add("http://" + "54.78.9.131" + ":9015");
+        projectList.add("http://" + "54.78.9.131" + ":9016");
+        registerList.add("http://" + "54.78.9.131" + ":9017");
+        categoriesList.add("http://" + "54.78.9.131" + ":9018");
+        skillsList.add("http://" + "54.78.9.131" + ":9019");
+        userskillsList.add("http://" + "54.78.9.131" + ":9020");
+        dynamicpropertiesList.add("http://" + "54.78.9.131" + ":9021");
+        authenticationList.add("http://" + "54.78.9.131" + ":9012");
+        proxyList.add("http://" + "54.78.9.131" + ":9023");
+        returnMap.put("education", educationList);
+        returnMap.put("employees", employeeList);
+        returnMap.put("entities", entitiesList);
+        returnMap.put("experiences", experienceList);
+        returnMap.put("file", fileList);
+        returnMap.put("monitoring", monitoringList);
+        returnMap.put("projects", projectList);
+        returnMap.put("register", registerList);
+        returnMap.put("categories", categoriesList);
+        returnMap.put("skills", skillsList);
+        returnMap.put("userskills", userskillsList);
+        returnMap.put("dynamicproperties", dynamicpropertiesList);
+        returnMap.put("authentication", authenticationList);
+        returnMap.put("proxy", proxyList);
         return returnMap;
     }
 

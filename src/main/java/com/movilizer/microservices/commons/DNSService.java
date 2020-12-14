@@ -64,7 +64,7 @@ public class DNSService {
         dynamicpropertiesList.add("http://" + "54.78.9.131" + ":9021");
         authenticationList.add("http://" + "54.78.9.131" + ":9012");
         proxyList.add("http://" + "54.78.9.131" + ":9023");
-        cassandra.add("http://" + "54.194.79.132");
+        cassandra.add("54.194.79.132");
         returnMap.put("education", educationList);
         returnMap.put("employees", employeeList);
         returnMap.put("entities", entitiesList);
